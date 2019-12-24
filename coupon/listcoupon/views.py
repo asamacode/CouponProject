@@ -9,28 +9,53 @@ from django.db import connection
 def index_mgg(request):
     shop = request.GET.get('shop')
 
-    query = 'SELECT * FROM listcoupon_coupon WHERE shop_name = %s'
-    query_count = 'SELECT COUNT(*) FROM listcoupon_coupon WHERE shop_name = %s'
-    list = Coupon.objects.raw(query, [shop])
-    with connection.cursor() as cursor:
-        cursor.execute(query_count, [shop])
-        row = cursor.fetchone()
-        count = row[0]
+    if shop is None:
+        shop = 'Tổng hợp'
+        query = 'SELECT * FROM listcoupon_coupon'
+        query_count = 'SELECT COUNT(*) FROM listcoupon_coupon'
+        list = Coupon.objects.raw(query)
+        with connection.cursor() as cursor:
+            cursor.execute(query_count)
+            row = cursor.fetchone()
+            count = row[0]
 
-    query = 'SELECT * FROM listcoupon_coupon WHERE shop_name = %s AND type = %s'
-    query_count = 'SELECT COUNT(*) FROM listcoupon_coupon WHERE shop_name = %s AND type = %s'
-    list_coupon = Coupon.objects.raw(query, [shop, 'coupon'])
-    with connection.cursor() as cursor:
-        cursor.execute(query_count, [shop, 'coupon'])
-        row = cursor.fetchone()
-        count_coupon = row[0]
+        query = 'SELECT * FROM listcoupon_coupon WHERE type = %s'
+        query_count = 'SELECT COUNT(*) FROM listcoupon_coupon WHERE type = %s'
+        list_coupon = Coupon.objects.raw(query, ['coupon'])
+        with connection.cursor() as cursor:
+            cursor.execute(query_count, ['coupon'])
+            row = cursor.fetchone()
+            count_coupon = row[0]
 
-    query = 'SELECT * FROM listcoupon_coupon WHERE shop_name = %s AND type = %s'
-    list_deal = Coupon.objects.raw(query, [shop, 'deal'])
-    with connection.cursor() as cursor:
-        cursor.execute(query_count, [shop, 'deal'])
-        row = cursor.fetchone()
-        count_deal = row[0]
+        query = 'SELECT * FROM listcoupon_coupon WHERE type = %s'
+        list_deal = Coupon.objects.raw(query, ['deal'])
+        with connection.cursor() as cursor:
+            cursor.execute(query_count, ['deal'])
+            row = cursor.fetchone()
+            count_deal = row[0]
+    else:
+        query = 'SELECT * FROM listcoupon_coupon WHERE shop_name = %s'
+        query_count = 'SELECT COUNT(*) FROM listcoupon_coupon WHERE shop_name = %s'
+        list = Coupon.objects.raw(query, [shop])
+        with connection.cursor() as cursor:
+            cursor.execute(query_count, [shop])
+            row = cursor.fetchone()
+            count = row[0]
+
+        query = 'SELECT * FROM listcoupon_coupon WHERE shop_name = %s AND type = %s'
+        query_count = 'SELECT COUNT(*) FROM listcoupon_coupon WHERE shop_name = %s AND type = %s'
+        list_coupon = Coupon.objects.raw(query, [shop, 'coupon'])
+        with connection.cursor() as cursor:
+            cursor.execute(query_count, [shop, 'coupon'])
+            row = cursor.fetchone()
+            count_coupon = row[0]
+
+        query = 'SELECT * FROM listcoupon_coupon WHERE shop_name = %s AND type = %s'
+        list_deal = Coupon.objects.raw(query, [shop, 'deal'])
+        with connection.cursor() as cursor:
+            cursor.execute(query_count, [shop, 'deal'])
+            row = cursor.fetchone()
+            count_deal = row[0]
 
     content = {
         'countcoupon': count_coupon,
@@ -42,6 +67,7 @@ def index_mgg(request):
         'list_deal': list_deal
     }
     return render(request, "mgg.html", content)
+
 
 def category(request):
     cat = request.GET.get('category')
@@ -69,6 +95,7 @@ def category(request):
         countdeal = row[0]
 
     cat = list[0].category
+
 
     content = {
         'countcoupon': countcoupon,
